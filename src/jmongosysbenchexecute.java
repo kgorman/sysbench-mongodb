@@ -66,7 +66,7 @@ public class jmongosysbenchexecute {
     public static int allDone = 0;
 
     public static long rngSeed = 0;
-    
+
     public jmongosysbenchexecute() {
     }
 
@@ -79,7 +79,7 @@ public class jmongosysbenchexecute {
                                    "[max tps] [server] [port] [seed] [username] [password]");
             System.exit(1);
         }
-        
+
         numCollections = Integer.valueOf(args[0]);
         dbName = args[1];
         writerThreads = Integer.valueOf(args[2]);
@@ -251,7 +251,7 @@ public class jmongosysbenchexecute {
         long numRangeQueries = 0;
 
         java.util.Random rand;
-        
+
         MyWriter(int threadCount, int threadNumber, int numMaxInserts, DB db, int numCollections, long rngSeed) {
             this.threadCount = threadCount;
             this.threadNumber = threadNumber;
@@ -430,10 +430,10 @@ public class jmongosysbenchexecute {
                         int startId = rand.nextInt(numMaxInserts)+1;
 
                         WriteResult wrUpdate = coll.update(new BasicDBObject("_id", startId), new BasicDBObject("$inc", new BasicDBObject("k",1)), false, false);
-    
+
                         //System.out.println(wrUpdate.toString());
                     }
-    
+
                     for (int i=1; i <= oltpNonIndexUpdates; i++) {
                         //for i=1, oltp_non_index_updates do
                         //   c_val = sb_rand_str("###########-###########-###########-###########-###########-###########-###########-###########-###########-###########")
@@ -448,7 +448,7 @@ public class jmongosysbenchexecute {
 
                         int startId = rand.nextInt(numMaxInserts)+1;
 
-                        String cVal = sysbenchString(rand, "###########-###########-###########-###########-###########-###########-###########-###########-###########-###########");
+                        String cVal = sysbenchString();
 
                         WriteResult wrUpdate = coll.update(new BasicDBObject("_id", startId), new BasicDBObject("$set", new BasicDBObject("c",cVal)), false, false);
 
@@ -458,7 +458,7 @@ public class jmongosysbenchexecute {
                     for (int i=1; i <= oltpInserts; i++) {
                         //i = sb_rand(1, oltp_table_size)
                         //rs = db_query("DELETE FROM " .. table_name .. " WHERE id=" .. i)
-                      
+
                         //db.sbtest8.remove({_id: 5523412})
 
                         int startId = rand.nextInt(numMaxInserts)+1;
@@ -472,10 +472,8 @@ public class jmongosysbenchexecute {
                         BasicDBObject doc = new BasicDBObject();
                         doc.put("_id",startId);
                         doc.put("k",rand.nextInt(numMaxInserts)+1);
-                        String cVal = sysbenchString(rand, "###########-###########-###########-###########-###########-###########-###########-###########-###########-###########");
+                        String cVal = sysbenchString();
                         doc.put("c",cVal);
-                        String padVal = sysbenchString(rand, "###########-###########-###########-###########-###########");
-                        doc.put("pad",padVal);
                         WriteResult wrInsert = coll.insert(doc);
                     }
 
@@ -502,19 +500,22 @@ public class jmongosysbenchexecute {
     }
 
 
-    public static String sysbenchString(java.util.Random rand, String thisMask) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0, n = thisMask.length() ; i < n ; i++) { 
-            char c = thisMask.charAt(i); 
-            if (c == '#') {
-                sb.append(String.valueOf(rand.nextInt(10)));
-            } else if (c == '@') {
-                sb.append((char) (rand.nextInt(26) + 'a'));
-            } else {
-                sb.append(c);
-            }
+    public static String sysbenchString() {
+        StringBuffer buffer = new StringBuffer();
+        String characters = "";
+
+        int max = 10000;
+        int range = (int)(Math.random() * max);
+
+        characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        int charactersLength = characters.length();
+
+        for (int i = 0; i < range; i++) {
+            double index = Math.random() * charactersLength;
+            buffer.append(characters.charAt((int) index));
         }
-        return sb.toString();
+        return buffer.toString();
     }
 
 
@@ -578,9 +579,9 @@ public class jmongosysbenchexecute {
                     long thisIntervalInserts = thisInserts - lastInserts;
                     double thisIntervalInsertsPerSecond = thisIntervalInserts/(double)thisIntervalMs*1000.0;
                     double thisInsertsPerSecond = thisInserts/(double)elapsed*1000.0;
-                    
+
                     logMe("%,d seconds : cum tps=%,.2f : int tps=%,.2f : cum ips=%,.2f : int ips=%,.2f : writers=%,d", elapsed / 1000l, thisSysbenchTransactionsPerSecond, thisIntervalSysbenchTransactionsPerSecond, thisInsertsPerSecond, thisIntervalInsertsPerSecond, thisWriterThreads);
-                    
+
                     try {
                         if (outputHeader)
                         {

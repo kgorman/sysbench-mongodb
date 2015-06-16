@@ -302,10 +302,8 @@ public class jmongosysbenchload {
                         BasicDBObject doc = new BasicDBObject();
                         doc.put("_id",id);
                         doc.put("k",rand.nextInt(numMaxInserts)+1);
-                        String cVal = sysbenchString(rand, "###########-###########-###########-###########-###########-###########-###########-###########-###########-###########");
+                        String cVal = sysbenchString();
                         doc.put("c",cVal);
-                        String padVal = sysbenchString(rand, "###########-###########-###########-###########-###########");
-                        doc.put("pad",padVal);
                         aDocs[i]=doc;
                     }
 
@@ -324,19 +322,22 @@ public class jmongosysbenchload {
     }
 
 
-    public static String sysbenchString(java.util.Random rand, String thisMask) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0, n = thisMask.length() ; i < n ; i++) { 
-            char c = thisMask.charAt(i); 
-            if (c == '#') {
-                sb.append(String.valueOf(rand.nextInt(10)));
-            } else if (c == '@') {
-                sb.append((char) (rand.nextInt(26) + 'a'));
-            } else {
-                sb.append(c);
-            }
+    public static String sysbenchString() {
+        StringBuffer buffer = new StringBuffer();
+        String characters = "";
+
+        int max = 100000;
+        int range = (int)(Math.random() * max);
+
+        characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        int charactersLength = characters.length();
+
+        for (int i = 0; i < range; i++) {
+            double index = Math.random() * charactersLength;
+            buffer.append(characters.charAt((int) index));
         }
-        return sb.toString();
+        return buffer.toString();
     }
 
 
